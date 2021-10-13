@@ -75,6 +75,7 @@ func (f *FileInput) Publish(endpoint string) error {
 		batchedMessages = append(batchedMessages, log)
 
 		// If we have reached the batch limit, or the end of the file send the batch
+		continueScan = scanner.Scan()
 		if lineCounter >= batchSize || !continueScan {
 			err = f.postBody(endpoint, batchedMessages)
 			lineCounter = 0
@@ -83,7 +84,6 @@ func (f *FileInput) Publish(endpoint string) error {
 				return err
 			}
 		}
-		continueScan = scanner.Scan()
 	}
 	return scanner.Err()
 }
