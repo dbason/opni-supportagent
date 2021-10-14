@@ -23,7 +23,7 @@ const (
 type LogMessage struct {
 	Time           time.Time `json:"time,omitempty"`
 	Log            string    `json:"log,omitempty"`
-	Agent          bool      `json:"agent,omitempty"`
+	Agent          string    `json:"agent,omitempty"`
 	IsControlPlane bool      `json:"is_control_plane_log,omitempty"`
 	Component      string    `json:"kubernetes_component,omitempty"`
 }
@@ -68,7 +68,7 @@ func (f *FileInput) Publish(endpoint string) error {
 		log := LogMessage{
 			Time:           datetime,
 			Log:            line,
-			Agent:          true,
+			Agent:          "support",
 			IsControlPlane: true,
 			Component:      f.component,
 		}
