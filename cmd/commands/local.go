@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -28,6 +29,20 @@ func BuildLocalCommand() *cobra.Command {
 }
 
 func publishLocal(cmd *cobra.Command, args []string) error {
+	if len(args) != 1 {
+		return errors.New("local requires exactly 1 argument; the distribution to use")
+	}
+
+	var publishFunc func(endpoint string) error
+	switch Distribution(args[0]) {
+	case RKE:
+		publishFunc = publish.ShipRKEControlPlane
+	case RKE2, K3S:
+		return errors.New("distribution not currently supported")
+	default:
+		return errors.New("distribution must be one of rke, rke2, k3s")
+	}
+
 	err := cluster.CreateCluster(cmd.Context())
 	if err != nil {
 		return err
@@ -55,7 +70,7 @@ func publishLocal(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = publish.ShipRKEControlPlane(fmt.Sprintf("http://localhost:%d", cluster.PayloadReceiverForwardedPort))
+	err = publishFunc(fmt.Sprintf("http://localhost:%d", cluster.PayloadReceiverForwardedPort))
 	if err != nil {
 		cancel()
 		return err
@@ -110,7 +125,7 @@ browser:
 			if c == ' ' {
 				browser.OpenURL(fmt.Sprintf("http://localhost:%d", cluster.KibanaForwardedPort))
 			} else {
-				fmt.Println("\nUnknown character entered")
+				fmt.Println("Unknown character entered")
 			}
 		}
 	}
