@@ -16,7 +16,8 @@ func BuildRootCmd() *cobra.Command {
 			return cmd.Help()
 		},
 	}
-	rootCmd.AddCommand(commands.BuildRKECommand())
+	rootCmd.AddCommand(commands.BuildPublishCommand())
+	rootCmd.AddCommand(commands.BuildLocalCommand())
 
 	return rootCmd
 }

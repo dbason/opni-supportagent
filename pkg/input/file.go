@@ -38,7 +38,12 @@ func NewFileInput(component string, path string) *FileInput {
 	return &FileInput{
 		component: component,
 		path:      path,
-		client:    &http.Client{},
+		client: &http.Client{
+			Transport: &http.Transport{
+				MaxConnsPerHost:   50,
+				DisableKeepAlives: true,
+			},
+		},
 	}
 }
 
@@ -85,7 +90,12 @@ func (f *FileInput) Publish(endpoint string) error {
 			}
 		}
 	}
+	f.client.CloseIdleConnections()
 	return scanner.Err()
+}
+
+func (f *FileInput) ComponentName() string {
+	return f.component
 }
 
 func (f *FileInput) postBody(endpoint string, messages []LogMessage) error {
@@ -106,7 +116,7 @@ func (f *FileInput) postBody(endpoint string, messages []LogMessage) error {
 	if err != nil {
 		return err
 	}
-	res.Body.Close()
+	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		return fmt.Errorf("publish failed: %s", res.Status)

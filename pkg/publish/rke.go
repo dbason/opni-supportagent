@@ -1,4 +1,4 @@
-package rke
+package publish
 
 import (
 	"os"
@@ -18,6 +18,7 @@ func ShipRKEControlPlane(endpoint string) error {
 		createKubeProxyInput(),
 	} {
 		if !reflect.ValueOf(component).IsNil() && component != nil {
+			util.Log.Infof("publishing %s logs", component.ComponentName())
 			err := component.Publish(endpoint)
 			if err != nil {
 				return err
