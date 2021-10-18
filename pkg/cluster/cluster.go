@@ -10,6 +10,7 @@ import (
 	"github.com/rancher/k3d/v5/pkg/config"
 	k3dv1alpha3 "github.com/rancher/k3d/v5/pkg/config/v1alpha3"
 	"github.com/rancher/k3d/v5/pkg/runtimes"
+	k3d "github.com/rancher/k3d/v5/pkg/types"
 )
 
 const (
@@ -74,4 +75,13 @@ func CreateCluster(ctx context.Context) error {
 	util.LoadProvidedConfig(kubeconfig)
 
 	return nil
+}
+
+func DeleteCluster(ctx context.Context) error {
+	cluster, err := client.ClusterGet(ctx, runtimes.Docker, &k3d.Cluster{Name: clusterName})
+	if err != nil && err != client.ClusterGetNoNodesFoundError {
+		return err
+	}
+
+	return client.ClusterDelete(ctx, runtimes.Docker, cluster, k3d.ClusterDeleteOpts{SkipRegistryCheck: false})
 }

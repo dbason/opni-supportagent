@@ -17,4 +17,5 @@
 # Distribution/packaging
 dist/
 build/
+bin/
 /.dapper

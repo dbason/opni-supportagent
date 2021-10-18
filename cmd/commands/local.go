@@ -18,12 +18,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	cleanupCluster bool
+)
+
 func BuildLocalCommand() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "local",
 		Short: "build local opnicluster in k3d and publish logs to it",
 		RunE:  publishLocal,
 	}
+	command.Flags().BoolVar(&cleanupCluster, "cleanup", false, "delete the cluster after use")
 
 	return command
 }
@@ -78,9 +83,9 @@ func publishLocal(cmd *cobra.Command, args []string) error {
 	cancel()
 
 	portfowardCtx, cancel = context.WithCancel(cmd.Context())
-	defer cancel()
 	err = cluster.KibanaPort(portfowardCtx)
 	if err != nil {
+		cancel()
 		return err
 	}
 
@@ -138,6 +143,13 @@ browser:
 	err = setSttyState(bytes.NewBufferString("echo"))
 	if err != nil {
 		util.Log.Error(err)
+	}
+
+	// close port forward before deleting cluster
+	cancel()
+	if cleanupCluster {
+		util.Log.Info("cleaning up cluster")
+		cluster.DeleteCluster(cmd.Context())
 	}
 
 	return nil
