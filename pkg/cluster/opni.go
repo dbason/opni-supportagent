@@ -44,8 +44,8 @@ var (
 		},
 		Spec: opniv1beta1.PretrainedModelSpec{
 			ModelSource: opniv1beta1.ModelSource{
-				HTTP: &opniv1beta1.HTTPSource{
-					URL: "https://opni-public.s3.us-east-2.amazonaws.com/pretrain-models/control-plane-model-v0.1.2.zip",
+				Container: &opniv1beta1.ContainerSource{
+					Image: "quay.io/dbason/control-plane-model:v0.1.2",
 				},
 			},
 			Hyperparameters: map[string]intstr.IntOrString{
