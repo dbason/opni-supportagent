@@ -9,6 +9,7 @@ import (
 	"github.com/dbason/opni-supportagent/pkg/manifests"
 	"github.com/dbason/opni-supportagent/pkg/util"
 	opniv1beta1 "github.com/rancher/opni/apis/v1beta1"
+	"github.com/rancher/opni/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -22,7 +23,8 @@ import (
 )
 
 const (
-	opniNamespace = "opni"
+	opniNamespace   = "opni"
+	pretrainedModel = "controlplane"
 )
 
 var (
@@ -37,7 +39,7 @@ var (
 
 	controlplaneModel = opniv1beta1.PretrainedModel{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "controlplane",
+			Name:      pretrainedModel,
 			Namespace: opniNamespace,
 		},
 		Spec: opniv1beta1.PretrainedModelSpec{
@@ -79,6 +81,13 @@ var (
 				Preprocessing: opniv1beta1.PreprocessingServiceSpec{
 					ImageSpec: opniv1beta1.ImageSpec{
 						Image: pointer.StringPtr("quay.io/dbason/opni-preprocessing-service:dev"),
+					},
+				},
+				Inference: opniv1beta1.InferenceServiceSpec{
+					PretrainedModels: []corev1.LocalObjectReference{
+						{
+							Name: pretrainedModel,
+						},
 					},
 				},
 				Metrics: opniv1beta1.MetricsServiceSpec{
@@ -238,6 +247,27 @@ func DeployOpni(ctx context.Context) error {
 			util.Log.Error(err)
 		}
 		ready = cluster.Status.State == "Ready" && cluster.Status.IndexState == "Ready"
+	}
+
+	util.Log.Info("waiting for pretrained models")
+	pretrainedLabels := map[string]string{
+		resources.PretrainedModelLabel: pretrainedModel,
+	}
+	deployments := &appsv1.DeploymentList{}
+	err = util.K8sClient.List(ctx, deployments, client.MatchingLabels(pretrainedLabels))
+	if err != nil {
+		return err
+	}
+	for _, deployment := range deployments.Items {
+		ready := false
+		for !ready {
+			time.Sleep(5 * time.Second)
+			err = util.K8sClient.Get(ctx, client.ObjectKeyFromObject(&deployment), &deployment)
+			if err != nil {
+				util.Log.Error(err)
+			}
+			ready = deployment.Status.AvailableReplicas > 0
+		}
 	}
 
 	return nil
