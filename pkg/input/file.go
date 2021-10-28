@@ -13,21 +13,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 )
 
-const (
-	datetimeRegex     = `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z`
-	headerContentType = "Content-Type"
-	jsonContentHeader = "application/json"
-	batchSize         = 20
-)
-
-type LogMessage struct {
-	Time           time.Time `json:"time,omitempty"`
-	Log            string    `json:"log,omitempty"`
-	Agent          string    `json:"agent,omitempty"`
-	IsControlPlane bool      `json:"is_control_plane_log,omitempty"`
-	Component      string    `json:"kubernetes_component,omitempty"`
-}
-
 type FileInput struct {
 	component string
 	path      string
@@ -62,7 +47,7 @@ func (f *FileInput) Publish(endpoint string) error {
 		lineCounter += 1
 		line := scanner.Text()
 
-		re := regexp.MustCompile(datetimeRegex)
+		re := regexp.MustCompile(datetimeRegexISO8601)
 		datestring := re.FindString(line)
 		datetime, err := time.Parse(time.RFC3339Nano, datestring)
 		if err != nil {

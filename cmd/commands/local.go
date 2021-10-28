@@ -42,7 +42,9 @@ func publishLocal(cmd *cobra.Command, args []string) error {
 	switch Distribution(args[0]) {
 	case RKE:
 		publishFunc = publish.ShipRKEControlPlane
-	case RKE2, K3S:
+	case K3S:
+		publishFunc = publish.ShipK3SControlPlane
+	case RKE2:
 		return errors.New("distribution not currently supported")
 	default:
 		return errors.New("distribution must be one of rke, rke2, k3s")

@@ -27,7 +27,9 @@ func publishLogs(cmd *cobra.Command, args []string) error {
 	switch Distribution(args[0]) {
 	case RKE:
 		err = publish.ShipRKEControlPlane(args[1])
-	case RKE2, K3S:
+	case K3S:
+		err = publish.ShipK3SControlPlane(args[1])
+	case RKE2:
 		err = errors.New("distribution not currently supported")
 	default:
 		err = errors.New("distribution must be one of rke, rke2, k3s")
