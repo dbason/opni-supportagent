@@ -38,19 +38,24 @@ func publishLocal(cmd *cobra.Command, args []string) error {
 		return errors.New("local requires exactly 1 argument; the distribution to use")
 	}
 
-	var publishFunc func(endpoint string) error
+	clusterName, err := cmd.Flags().GetString("clustername")
+	if err != nil {
+		return err
+	}
+
+	var publishFunc func(endpoint string, clusterName string) error
 	switch Distribution(args[0]) {
 	case RKE:
 		publishFunc = publish.ShipRKEControlPlane
 	case K3S:
 		publishFunc = publish.ShipK3SControlPlane
 	case RKE2:
-		return errors.New("distribution not currently supported")
+		publishFunc = publish.ShipRKE2ControlPlane
 	default:
 		return errors.New("distribution must be one of rke, rke2, k3s")
 	}
 
-	err := cluster.CreateCluster(cmd.Context())
+	err = cluster.CreateCluster(cmd.Context())
 	if err != nil {
 		return err
 	}
@@ -77,7 +82,7 @@ func publishLocal(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = publishFunc(fmt.Sprintf("http://localhost:%d", cluster.PayloadReceiverForwardedPort))
+	err = publishFunc(fmt.Sprintf("http://localhost:%d", cluster.PayloadReceiverForwardedPort), clusterName)
 	if err != nil {
 		cancel()
 		return err

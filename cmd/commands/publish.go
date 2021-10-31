@@ -21,16 +21,21 @@ func BuildPublishCommand() *cobra.Command {
 
 func publishLogs(cmd *cobra.Command, args []string) error {
 	var err error
+	clusterName, err := cmd.Flags().GetString("clustername")
+	if err != nil {
+		return err
+	}
+
 	if len(args) != 2 {
 		return errors.New("publish requires exactly 2 arguments, the distribution and the endpoint")
 	}
 	switch Distribution(args[0]) {
 	case RKE:
-		err = publish.ShipRKEControlPlane(args[1])
+		err = publish.ShipRKEControlPlane(args[1], clusterName)
 	case K3S:
-		err = publish.ShipK3SControlPlane(args[1])
+		err = publish.ShipK3SControlPlane(args[1], clusterName)
 	case RKE2:
-		err = errors.New("distribution not currently supported")
+		err = publish.ShipRKE2ControlPlane(args[1], clusterName)
 	default:
 		err = errors.New("distribution must be one of rke, rke2, k3s")
 	}

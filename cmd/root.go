@@ -19,6 +19,8 @@ func BuildRootCmd() *cobra.Command {
 	rootCmd.AddCommand(commands.BuildPublishCommand())
 	rootCmd.AddCommand(commands.BuildLocalCommand())
 
+	rootCmd.PersistentFlags().String("clustername", "default", "cluster name to add as metadata to the logs")
+
 	return rootCmd
 }
 

@@ -13,16 +13,22 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 )
 
+const (
+	datetimeRegexISO8601 = `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z`
+)
+
 type FileInput struct {
-	component string
-	path      string
-	client    *http.Client
+	component   string
+	path        string
+	client      *http.Client
+	clusterName string
 }
 
-func NewFileInput(component string, path string) *FileInput {
+func NewFileInput(component string, path string, clusterName string) *FileInput {
 	return &FileInput{
-		component: component,
-		path:      path,
+		component:   component,
+		path:        path,
+		clusterName: clusterName,
 		client: &http.Client{
 			Transport: &http.Transport{
 				MaxConnsPerHost:   50,
@@ -32,7 +38,7 @@ func NewFileInput(component string, path string) *FileInput {
 	}
 }
 
-func (f *FileInput) Publish(endpoint string) error {
+func (f *FileInput) Publish(endpoint string, parser DateParser) error {
 	file, err := os.Open(f.path)
 	if err != nil {
 		return err
@@ -44,29 +50,44 @@ func (f *FileInput) Publish(endpoint string) error {
 	lineCounter := 0
 	var batchedMessages []LogMessage
 	for continueScan {
-		lineCounter += 1
 		line := scanner.Text()
 
-		re := regexp.MustCompile(datetimeRegexISO8601)
-		datestring := re.FindString(line)
-		datetime, err := time.Parse(time.RFC3339Nano, datestring)
+		datetime, valid := parser.ParseTimestamp(line)
 		if err != nil {
 			util.Log.Errorf("error parsing date in log: %s", line)
 			return err
 		}
+		if valid {
+			// If the log is a valid log, and we previously reached the batch level sent it off
+			if lineCounter >= batchSize {
+				err = f.postBody(endpoint, batchedMessages)
+				lineCounter = 0
+				batchedMessages = []LogMessage{}
+				if err != nil {
+					return err
+				}
+			}
 
-		log := LogMessage{
-			Time:           datetime,
-			Log:            line,
-			Agent:          "support",
-			IsControlPlane: true,
-			Component:      f.component,
+			log := LogMessage{
+				Time:           datetime,
+				Log:            line,
+				Agent:          "support",
+				IsControlPlane: true,
+				Component:      f.component,
+				ClusterName:    f.clusterName,
+			}
+			batchedMessages = append(batchedMessages, log)
+		} else {
+			util.Log.Debugf("log line has no date: %s", line)
+			// If the log line has no date string append it to the previous entry
+			if len(batchedMessages) > 0 {
+				batchedMessages[lineCounter-1].Log = batchedMessages[lineCounter-1].Log + line
+			}
 		}
-		batchedMessages = append(batchedMessages, log)
 
-		// If we have reached the batch limit, or the end of the file send the batch
+		// If we have reached the end of the file send the batch
 		continueScan = scanner.Scan()
-		if lineCounter >= batchSize || !continueScan {
+		if !continueScan {
 			err = f.postBody(endpoint, batchedMessages)
 			lineCounter = 0
 			batchedMessages = []LogMessage{}
@@ -74,6 +95,7 @@ func (f *FileInput) Publish(endpoint string) error {
 				return err
 			}
 		}
+		lineCounter += 1
 	}
 	f.client.CloseIdleConnections()
 	return scanner.Err()
@@ -81,6 +103,16 @@ func (f *FileInput) Publish(endpoint string) error {
 
 func (f *FileInput) ComponentName() string {
 	return f.component
+}
+
+func (f *FileInput) ParseTimestamp(log string) (time.Time, bool) {
+	re := regexp.MustCompile(datetimeRegexISO8601)
+	datestring := re.FindString(log)
+	datetime, err := time.Parse(time.RFC3339Nano, datestring)
+	if err != nil {
+		util.Log.Panic(err)
+	}
+	return datetime, true
 }
 
 func (f *FileInput) postBody(endpoint string, messages []LogMessage) error {

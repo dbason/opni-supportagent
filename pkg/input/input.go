@@ -3,11 +3,9 @@ package input
 import "time"
 
 const (
-	datetimeRegexISO8601  = `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z`
-	datetimeRegexJournalD = `^[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}`
-	headerContentType     = "Content-Type"
-	jsonContentHeader     = "application/json"
-	batchSize             = 20
+	headerContentType = "Content-Type"
+	jsonContentHeader = "application/json"
+	batchSize         = 20
 )
 
 type LogMessage struct {
@@ -16,9 +14,14 @@ type LogMessage struct {
 	Agent          string    `json:"agent,omitempty"`
 	IsControlPlane bool      `json:"is_control_plane_log,omitempty"`
 	Component      string    `json:"kubernetes_component,omitempty"`
+	ClusterName    string    `json:"cluster,omitempty"`
 }
 
 type ComponentInput interface {
-	Publish(endpoint string) error // Publish should read the contents of component logs and publish them to the payload endpoint.
+	Publish(endpoint string, parser DateParser) error // Publish should read the contents of component logs and publish them to the payload endpoint.
 	ComponentName() string
+}
+
+type DateParser interface {
+	ParseTimestamp(log string) (time.Time, bool) // Parse timestamp should have the implementation for parsing the timestamp from a log line
 }
