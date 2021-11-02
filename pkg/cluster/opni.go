@@ -101,7 +101,7 @@ var (
 				},
 			},
 			Elastic: opniv1beta1.ElasticSpec{
-				Version: "1.13.2",
+				Version: "1.1.0",
 				AdminPasswordFrom: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
 						Name: "local-password",
@@ -246,7 +246,7 @@ func DeployOpni(ctx context.Context) error {
 		if err != nil {
 			util.Log.Error(err)
 		}
-		ready = cluster.Status.State == "Ready" && cluster.Status.IndexState == "Ready"
+		ready = cluster.Status.State == "Ready" && cluster.Status.OpensearchState.IndexState == "Ready"
 	}
 
 	util.Log.Info("waiting for pretrained models")

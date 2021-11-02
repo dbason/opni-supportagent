@@ -7,7 +7,7 @@ require (
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/rancher/k3d/v5 v5.0.1
-	github.com/rancher/opni v0.2.0
+	github.com/rancher/opni v0.2.1-0.20211101204715-f10f8fb74ce6
 	github.com/spf13/cobra v1.2.1
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	go.uber.org/atomic v1.9.0
@@ -27,7 +27,7 @@ require (
 	github.com/NVIDIA/gpu-operator v1.8.1 // indirect
 	github.com/banzaicloud/k8s-objectmatcher v1.5.1 // indirect
 	github.com/banzaicloud/logging-operator/pkg/sdk v0.7.7 // indirect
-	github.com/banzaicloud/operator-tools v0.25.0 // indirect
+	github.com/banzaicloud/operator-tools v0.25.4 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/briandowns/spinner v1.12.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -57,7 +57,7 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
-	github.com/gorilla/mux v1.7.3 // indirect
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/heroku/docker-registry-client v0.0.0-20190909225348-afc9e1acc3d5 // indirect
 	github.com/iancoleman/orderedmap v0.2.0 // indirect
@@ -131,4 +131,12 @@ require (
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
+)
+
+replace (
+	github.com/NVIDIA/gpu-operator => github.com/kralicky/gpu-operator v1.8.1-0.20211018192549-27689de6173c
+	github.com/banzaicloud/logging-operator => github.com/dbason/logging-operator v0.0.0-20211020201013-d8577a836438
+	github.com/banzaicloud/logging-operator/pkg/sdk => github.com/dbason/logging-operator/pkg/sdk v0.0.0-20211020201013-d8577a836438
+	// github.com/banzaicloud/logging-operator/pkg/sdk => github.com/banzaicloud/logging-operator/pkg/sdk v0.7.7
+	github.com/openshift/api => github.com/openshift/api v0.0.0-20210216211028-bb81baaf35cd
 )
