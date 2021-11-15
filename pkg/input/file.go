@@ -81,7 +81,8 @@ func (f *FileInput) Publish(endpoint string, parser DateParser) error {
 			util.Log.Debugf("log line has no date: %s", line)
 			// If the log line has no date string append it to the previous entry
 			if len(batchedMessages) > 0 {
-				batchedMessages[lineCounter-1].Log = batchedMessages[lineCounter-1].Log + line
+				lineCounter -= 1
+				batchedMessages[lineCounter].Log = batchedMessages[lineCounter].Log + line
 			}
 		}
 
