@@ -2,21 +2,36 @@ package publish
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	"github.com/dbason/opni-supportagent/pkg/input"
 )
 
 type rke2Shipper struct {
+	ctx         context.Context
+	username    string
+	password    string
 	endpoint    string
 	clusterName string
+	nodeName    string
 	timezone    string
 	year        string
+	start       time.Time
+	end         time.Time
 }
 
-func ShipRKE2ControlPlane(endpoint string, clusterName string) error {
+func ShipRKE2ControlPlane(
+	ctx context.Context,
+	endpoint string,
+	clusterName string,
+	nodeName string,
+	username string,
+	password string,
+) error {
 	var (
 		dateFile *os.File
 		timezone string
@@ -84,7 +99,19 @@ func ShipRKE2ControlPlane(endpoint string, clusterName string) error {
 		return err
 	}
 
-	return nil
+	doc := SupportFetcherDoc{
+		Start: shipper.start,
+		End:   shipper.end,
+		Case:  clusterName,
+	}
+
+	return indexFetcherDoc(
+		ctx,
+		endpoint,
+		username,
+		password,
+		doc,
+	)
 }
 
 func (r *rke2Shipper) shipEtcd() error {
@@ -93,20 +120,50 @@ func (r *rke2Shipper) shipEtcd() error {
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		fileInput := input.NewFileInput("etcd", file, r.clusterName)
-		err = fileInput.Publish(r.endpoint, parser)
-		if err != nil {
-			return err
-		}
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "etcd",
+		Paths:     files,
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
 	}
 	return nil
 }
 
 func (r *rke2Shipper) shipKubelet() error {
 	parser := input.NewDateZoneParser(r.timezone, r.year, input.DatetimeRegexK8s, input.LayoutK8s)
-	fileInput := input.NewFileInput("kubelet", "rke2/agent-logs/kubelet.log", r.clusterName)
-	return fileInput.Publish(r.endpoint, parser)
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "kubelet",
+		Paths:     []string{"rke2/agent-logs/kubelet.log"},
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
+	}
+	return nil
 }
 
 func (r *rke2Shipper) shipKubeApiServer() error {
@@ -115,12 +172,24 @@ func (r *rke2Shipper) shipKubeApiServer() error {
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		fileInput := input.NewFileInput("kube-apiserver", file, r.clusterName)
-		err = fileInput.Publish(r.endpoint, parser)
-		if err != nil {
-			return err
-		}
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "kube-apiserver",
+		Paths:     files,
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
 	}
 	return nil
 }
@@ -131,12 +200,24 @@ func (r *rke2Shipper) shipKubeControllerManager() error {
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		fileInput := input.NewFileInput("kube-controller-manager", file, r.clusterName)
-		err = fileInput.Publish(r.endpoint, parser)
-		if err != nil {
-			return err
-		}
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "kube-controller-manager",
+		Paths:     files,
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
 	}
 	return nil
 }
@@ -147,12 +228,24 @@ func (r *rke2Shipper) shipKubeScheduler() error {
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		fileInput := input.NewFileInput("kube-scheduler", file, r.clusterName)
-		err = fileInput.Publish(r.endpoint, parser)
-		if err != nil {
-			return err
-		}
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "kube-scheduler",
+		Paths:     files,
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
 	}
 	return nil
 }
@@ -163,18 +256,48 @@ func (r *rke2Shipper) shipKubeProxy() error {
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		fileInput := input.NewFileInput("kube-proxy", file, r.clusterName)
-		err = fileInput.Publish(r.endpoint, parser)
-		if err != nil {
-			return err
-		}
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "kube-proxy",
+		Paths:     files,
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
 	}
 	return nil
 }
 
 func (r *rke2Shipper) shipRKE2JournalD() error {
 	parser := input.NewDateZoneParser(r.timezone, r.year, input.DatetimeRegexJournalD, input.LayoutJournalD)
-	fileInput := input.NewFileInput("rke2", "journald/rke2-server", r.clusterName)
-	return fileInput.Publish(r.endpoint, parser)
+	os, err := input.NewOpensearchInput(r.ctx, r.endpoint, r.username, r.password, input.OpensearchConfig{
+		ClusterID: r.clusterName,
+		NodeName:  r.nodeName,
+		Component: "rke2",
+		Paths:     []string{"journald/rke2-server"},
+	})
+	if err != nil {
+		return err
+	}
+	start, end, err := os.Publish(parser)
+	if err != nil {
+		return err
+	}
+	if r.start.IsZero() || start.Before(r.start) {
+		r.start = start
+	}
+	if r.end.IsZero() || end.After(r.end) {
+		r.end = end
+	}
+	return nil
 }

@@ -2,19 +2,26 @@ package publish
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"regexp"
 
 	"github.com/dbason/opni-supportagent/pkg/input"
 )
 
-func ShipK3SControlPlane(endpoint string, clusterName string) error {
+func ShipK3SControlPlane(
+	ctx context.Context,
+	endpoint string,
+	clusterName string,
+	nodeName string,
+	username string,
+	password string,
+) error {
 	var (
-		dateFile  *os.File
-		timezone  string
-		year      string
-		err       error
-		fileInput input.ComponentInput
+		dateFile *os.File
+		timezone string
+		year     string
+		err      error
 	)
 	// Extract timezone and year from the date output
 	if _, err = os.Stat("systeminfo/date"); err == nil {
@@ -38,8 +45,34 @@ func ShipK3SControlPlane(endpoint string, clusterName string) error {
 	if _, err := os.Stat("journald/k3s"); err != nil {
 		return err
 	}
-	fileInput = input.NewFileInput("k3s", "journald/k3s", clusterName)
+	opensearch, err := input.NewOpensearchInput(ctx, endpoint, username, password, input.OpensearchConfig{
+		ClusterID: clusterName,
+		Paths:     []string{"journald/k3s"},
+		Component: "k3s",
+		NodeName:  nodeName,
+	})
+	if err != nil {
+		return err
+	}
+
 	journaldParser := input.NewDateZoneParser(timezone, year, input.DatetimeRegexJournalD, input.LayoutJournalD)
 
-	return fileInput.Publish(endpoint, journaldParser)
+	start, end, err := opensearch.Publish(journaldParser)
+	if err != nil {
+		return err
+	}
+
+	doc := SupportFetcherDoc{
+		Start: start,
+		End:   end,
+		Case:  clusterName,
+	}
+
+	return indexFetcherDoc(
+		ctx,
+		endpoint,
+		username,
+		password,
+		doc,
+	)
 }
