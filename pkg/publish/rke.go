@@ -31,6 +31,7 @@ func ShipRKEControlPlane(
 		ctx:         ctx,
 		endpoint:    endpoint,
 		clusterName: clusterName,
+		nodeName:    nodeName,
 		username:    username,
 		password:    password,
 	}
@@ -53,7 +54,7 @@ func ShipRKEControlPlane(
 			if start.IsZero() || thisStart.Before(start) {
 				start = thisStart
 			}
-			if end.IsZero() || thisEnd.Before(end) {
+			if end.IsZero() || thisEnd.After(end) {
 				end = thisEnd
 			}
 		}

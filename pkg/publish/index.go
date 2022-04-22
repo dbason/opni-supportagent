@@ -17,6 +17,7 @@ import (
 type SupportFetcherDoc struct {
 	Start time.Time `json:"start,omitempty"`
 	End   time.Time `json:"end,omitempty"`
+	Sleep time.Time `json:"sleep,omitempty"`
 	Case  string    `json:"case,omitempty"`
 }
 

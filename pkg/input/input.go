@@ -13,11 +13,11 @@ type LogMessage struct {
 	Time           time.Time `json:"time,omitempty"`
 	Log            string    `json:"log,omitempty"`
 	Agent          string    `json:"agent,omitempty"`
-	IsControlPlane bool      `json:"is_control_plane_log,omitempty"`
+	IsControlPlane bool      `json:"is_control_plane_log"`
 	Component      string    `json:"kubernetes_component,omitempty"`
 	ClusterID      string    `json:"cluster_id,omitempty"`
 	NodeName       string    `json:"node_name,omitempty"`
-	Processed      bool      `json:"processed,omitempty"`
+	Processed      bool      `json:"processed"`
 }
 
 type ComponentInput interface {
