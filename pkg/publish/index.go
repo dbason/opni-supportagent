@@ -19,6 +19,7 @@ type SupportFetcherDoc struct {
 	End   time.Time `json:"end,omitempty"`
 	Sleep time.Time `json:"sleep,omitempty"`
 	Case  string    `json:"case,omitempty"`
+	Count int       `json:"count"`
 }
 
 const (
