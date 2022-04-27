@@ -9,11 +9,8 @@ import (
 )
 
 var (
-	password     string
 	distribution string
 )
-
-type Distribution string
 
 func BuildPublishCommand() *cobra.Command {
 	command := &cobra.Command{
@@ -82,7 +79,7 @@ func publishLogs(cmd *cobra.Command, args []string) error {
 func getPassword(cmd *cobra.Command, args []string) error {
 	var err error
 	if len(args) != 1 {
-		return errors.New("publish requires exactly 1 arguments; the distribution")
+		return errors.New("requires exactly 1 arguments; the distribution")
 	}
 	password, err = cmd.Flags().GetString("password")
 	if err != nil {

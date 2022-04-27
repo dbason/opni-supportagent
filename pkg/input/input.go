@@ -6,6 +6,7 @@ const (
 	headerContentType = "Content-Type"
 	jsonContentHeader = "application/json"
 	batchSize         = 20
+	KlogRegex         = `^[I,E,F]\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
 )
 
 type LogMessage struct {
@@ -26,5 +27,5 @@ type ComponentInput interface {
 }
 
 type DateParser interface {
-	ParseTimestamp(log string) (time.Time, bool) // Parse timestamp should have the implementation for parsing the timestamp from a log line
+	ParseTimestamp(log string) (time.Time, string, bool) // Parse timestamp should have the implementation for parsing the timestamp from a log line
 }

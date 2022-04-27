@@ -17,6 +17,7 @@ func BuildRootCmd() *cobra.Command {
 		},
 	}
 	rootCmd.AddCommand(commands.BuildPublishCommand())
+	rootCmd.AddCommand(commands.BuildDeleteCommand())
 
 	rootCmd.PersistentFlags().String("case-number", "", "case number to store the logs under")
 	rootCmd.PersistentFlags().String("endpoint", "https://support-opensearch.danbason.dev", "Opensearch endpoint to publish logs to")

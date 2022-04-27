@@ -10,6 +10,7 @@ require (
 	github.com/rancher/k3d/v5 v5.0.1
 	github.com/rancher/opni v0.2.1-0.20211101204715-f10f8fb74ce6
 	github.com/spf13/cobra v1.2.1
+	github.com/tidwall/sjson v1.2.4
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	go.uber.org/atomic v1.9.0
 	go.uber.org/zap v1.19.1
@@ -102,6 +103,9 @@ require (
 	github.com/spf13/viper v1.8.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/theupdateframework/notary v0.7.0 // indirect
+	github.com/tidwall/gjson v1.12.1 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/wayneashleyberry/terminal-dimensions v1.0.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

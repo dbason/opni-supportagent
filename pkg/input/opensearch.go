@@ -105,7 +105,7 @@ func (i *OpensearchInput) Publish(parser DateParser) (time.Time, time.Time, erro
 		for continueScan {
 			line := scanner.Text()
 
-			datetime, valid := parser.ParseTimestamp(line)
+			datetime, log, valid := parser.ParseTimestamp(line)
 			if err != nil {
 				util.Log.Errorf("error parsing date in log: %s", line)
 				return start, end, err
@@ -147,7 +147,7 @@ func (i *OpensearchInput) Publish(parser DateParser) (time.Time, time.Time, erro
 				previousLog = LogMessage{
 					Time:           datetime,
 					Timestamp:      datetime,
-					Log:            line,
+					Log:            log,
 					Agent:          "support",
 					IsControlPlane: true,
 					Component:      i.config.Component,
