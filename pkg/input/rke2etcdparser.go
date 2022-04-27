@@ -24,7 +24,7 @@ type EtcdJSONLog struct {
 	Message   string `json:"msg,omitempty"`
 }
 
-func (r RKE2EtcdParser) ParseTimestamp(log string) (time.Time, bool) {
+func (r RKE2EtcdParser) ParseTimestamp(log string) (time.Time, string, bool) {
 	if strings.HasPrefix(log, "{") {
 		jsonLog := &EtcdJSONLog{}
 		json.Unmarshal([]byte(log), jsonLog)
@@ -32,17 +32,17 @@ func (r RKE2EtcdParser) ParseTimestamp(log string) (time.Time, bool) {
 		if err != nil {
 			util.Log.Panic(err)
 		}
-		return datetime, true
+		return datetime, log, true
 	}
 	re := regexp.MustCompile(EtcdTimestampRegex)
 	datestring := re.FindString(log)
 	if len(datestring) == 0 {
 		util.Log.Warnf("no date found in log: %s", log)
-		return time.Now(), true
+		return time.Now(), log, false
 	}
 	datetime, err := time.Parse(EtcdTimestampLayout, fmt.Sprintf("%sZ", datestring))
 	if err != nil {
 		util.Log.Panic(err)
 	}
-	return datetime, true
+	return datetime, log, true
 }

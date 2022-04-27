@@ -3,12 +3,14 @@ module github.com/dbason/opni-supportagent
 go 1.17
 
 require (
-	github.com/elastic/go-elasticsearch/v7 v7.12.0
+	github.com/AlecAivazis/survey/v2 v2.3.2
+	github.com/cenkalti/backoff/v4 v4.1.2
+	github.com/opensearch-project/opensearch-go v1.0.0
 	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
-	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/rancher/k3d/v5 v5.0.1
 	github.com/rancher/opni v0.2.1-0.20211101204715-f10f8fb74ce6
 	github.com/spf13/cobra v1.2.1
+	github.com/tidwall/sjson v1.2.4
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	go.uber.org/atomic v1.9.0
 	go.uber.org/zap v1.19.1
@@ -64,11 +66,13 @@ require (
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -99,6 +103,9 @@ require (
 	github.com/spf13/viper v1.8.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/theupdateframework/notary v0.7.0 // indirect
+	github.com/tidwall/gjson v1.12.1 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/wayneashleyberry/terminal-dimensions v1.0.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

@@ -3,6 +3,7 @@ package input
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/dbason/opni-supportagent/pkg/util"
@@ -37,15 +38,28 @@ func NewDateZoneParser(timezone string, year string, datetimeRegex string, layou
 	}
 }
 
-func (d *DateZoneParser) ParseTimestamp(log string) (time.Time, bool) {
+func (d *DateZoneParser) ParseTimestamp(log string) (time.Time, string, bool) {
 	re := regexp.MustCompile(d.datetimeRegex)
 	datestring := re.FindString(log)
 	if len(datestring) == 0 {
-		return time.Now(), false
+		return time.Now(), log, false
 	}
 	datetime, err := time.Parse(d.layout, fmt.Sprintf("%s %s %s", datestring, d.timezone, d.year))
 	if err != nil {
 		util.Log.Panic(err)
 	}
-	return datetime, true
+
+	retLog := log
+	valid := true
+
+	if d.datetimeRegex != DatetimeRegexK8s {
+		cleaned := strings.TrimSpace(re.ReplaceAllString(log, ""))
+		retLog = cleaned
+
+		re = regexp.MustCompile(KlogRegex)
+		datestring = re.FindString(cleaned)
+		valid = len(datestring) > 0
+	}
+
+	return datetime, retLog, valid
 }
