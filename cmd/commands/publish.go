@@ -1,15 +1,10 @@
 package commands
 
 import (
-	"errors"
-
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/dbason/opni-supportagent/pkg/errors"
 	"github.com/dbason/opni-supportagent/pkg/publish"
 	"github.com/spf13/cobra"
-)
-
-var (
-	distribution string
 )
 
 func BuildPublishCommand() *cobra.Command {
@@ -71,7 +66,7 @@ func publishLogs(cmd *cobra.Command, args []string) error {
 			password,
 		)
 	default:
-		err = errors.New("distribution must be one of rke, rke2, k3s")
+		err = errors.ErrInvalidDist
 	}
 	return err
 }
@@ -79,7 +74,7 @@ func publishLogs(cmd *cobra.Command, args []string) error {
 func getPassword(cmd *cobra.Command, args []string) error {
 	var err error
 	if len(args) != 1 {
-		return errors.New("requires exactly 1 arguments; the distribution")
+		return errors.ErrInvalidArgumentNumber(1)
 	}
 	password, err = cmd.Flags().GetString("password")
 	if err != nil {

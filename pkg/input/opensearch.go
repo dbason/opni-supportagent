@@ -80,7 +80,7 @@ func (i *OpensearchInput) ComponentName() string {
 	return i.config.Component
 }
 
-func (i *OpensearchInput) Publish(parser DateParser) (time.Time, time.Time, error) {
+func (i *OpensearchInput) Publish(parser DateParser, logType LogType) (time.Time, time.Time, error) {
 	var start, end time.Time
 	indexer, err := opensearchutil.NewBulkIndexer(opensearchutil.BulkIndexerConfig{
 		Index:  "logs",
@@ -145,14 +145,14 @@ func (i *OpensearchInput) Publish(parser DateParser) (time.Time, time.Time, erro
 					}
 				}
 				previousLog = LogMessage{
-					Time:           datetime,
-					Timestamp:      datetime,
-					Log:            log,
-					Agent:          "support",
-					IsControlPlane: true,
-					Component:      i.config.Component,
-					ClusterID:      i.config.ClusterID,
-					NodeName:       i.config.NodeName,
+					Time:      datetime,
+					Timestamp: datetime,
+					Log:       log,
+					Agent:     "support",
+					LogType:   logType,
+					Component: i.config.Component,
+					ClusterID: i.config.ClusterID,
+					NodeName:  i.config.NodeName,
 				}
 			} else {
 				// if it's not a valid datetime add the log to the previous string

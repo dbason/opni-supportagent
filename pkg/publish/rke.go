@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"reflect"
-	"time"
 
 	"github.com/dbason/opni-supportagent/pkg/input"
 	"github.com/dbason/opni-supportagent/pkg/util"
@@ -35,7 +34,6 @@ func ShipRKEControlPlane(
 		username:    username,
 		password:    password,
 	}
-	var start, end time.Time
 
 	for _, component := range []*input.OpensearchInput{
 		shipper.createETCDInput(),
@@ -47,31 +45,13 @@ func ShipRKEControlPlane(
 	} {
 		if !reflect.ValueOf(component).IsNil() && component != nil {
 			util.Log.Infof("publishing %s logs", component.ComponentName())
-			thisStart, thisEnd, err := component.Publish(&input.DefaultParser{})
+			_, _, err := component.Publish(&input.DefaultParser{}, input.LogTypeControlplane)
 			if err != nil {
 				return err
 			}
-			if start.IsZero() || thisStart.Before(start) {
-				start = thisStart
-			}
-			if end.IsZero() || thisEnd.After(end) {
-				end = thisEnd
-			}
 		}
 	}
-	doc := SupportFetcherDoc{
-		Start: start,
-		End:   end,
-		Case:  clusterName,
-	}
-
-	return indexFetcherDoc(
-		ctx,
-		endpoint,
-		username,
-		password,
-		doc,
-	)
+	return nil
 }
 
 func (s rkeShipper) createETCDInput() *input.OpensearchInput {
