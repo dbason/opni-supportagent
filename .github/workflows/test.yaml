@@ -13,7 +13,7 @@ jobs:
         persist-credentials: false
     - uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.42
+        version: v1.46
   build:
     name: Build
     needs: lint
