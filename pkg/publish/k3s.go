@@ -57,22 +57,6 @@ func ShipK3SControlPlane(
 
 	journaldParser := input.NewDateZoneParser(timezone, year, input.DatetimeRegexJournalD, input.LayoutJournalD)
 
-	start, end, err := opensearch.Publish(journaldParser)
-	if err != nil {
-		return err
-	}
-
-	doc := SupportFetcherDoc{
-		Start: start,
-		End:   end,
-		Case:  clusterName,
-	}
-
-	return indexFetcherDoc(
-		ctx,
-		endpoint,
-		username,
-		password,
-		doc,
-	)
+	_, _, err = opensearch.Publish(journaldParser, input.LogTypeControlplane)
+	return err
 }

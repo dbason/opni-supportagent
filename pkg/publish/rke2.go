@@ -95,23 +95,8 @@ func ShipRKE2ControlPlane(
 	}
 
 	err = shipper.shipRKE2JournalD()
-	if err != nil {
-		return err
-	}
+	return err
 
-	doc := SupportFetcherDoc{
-		Start: shipper.start,
-		End:   shipper.end,
-		Case:  clusterName,
-	}
-
-	return indexFetcherDoc(
-		ctx,
-		endpoint,
-		username,
-		password,
-		doc,
-	)
 }
 
 func (r *rke2Shipper) shipEtcd() error {
@@ -129,7 +114,7 @@ func (r *rke2Shipper) shipEtcd() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -153,7 +138,7 @@ func (r *rke2Shipper) shipKubelet() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -181,7 +166,7 @@ func (r *rke2Shipper) shipKubeApiServer() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -209,7 +194,7 @@ func (r *rke2Shipper) shipKubeControllerManager() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -237,7 +222,7 @@ func (r *rke2Shipper) shipKubeScheduler() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -265,7 +250,7 @@ func (r *rke2Shipper) shipKubeProxy() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
@@ -289,7 +274,7 @@ func (r *rke2Shipper) shipRKE2JournalD() error {
 	if err != nil {
 		return err
 	}
-	start, end, err := os.Publish(parser)
+	start, end, err := os.Publish(parser, input.LogTypeControlplane)
 	if err != nil {
 		return err
 	}
