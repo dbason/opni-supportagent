@@ -40,11 +40,11 @@ jobs:
     - uses: thedoctor0/zip-release@main
       with:
         type: tar
-        filename: opni-supportagent_{{ env.TAG_NAME }}.tar.gz
+        filename: opni-supportagent_${{ env.TAG_NAME }}.tar.gz
         path: ./bin/
     - uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: opni-supportagent_{{ env.TAG_NAME }}.tar.gz
+        files: opni-supportagent_${{ env.TAG_NAME }}.tar.gz
 
   
