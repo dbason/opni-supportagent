@@ -3,10 +3,7 @@ package input
 import "time"
 
 const (
-	headerContentType = "Content-Type"
-	jsonContentHeader = "application/json"
-	batchSize         = 20
-	KlogRegex         = `^[I,E,F]\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
+	KlogRegex = `^[I,E,F]\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
 )
 
 type LogType string

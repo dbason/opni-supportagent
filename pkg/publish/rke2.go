@@ -74,7 +74,7 @@ func ShipRKE2ControlPlane(
 		return err
 	}
 
-	err = shipper.shipKubeApiServer()
+	err = shipper.shipKubeAPIServer()
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (r *rke2Shipper) shipKubelet() error {
 	return nil
 }
 
-func (r *rke2Shipper) shipKubeApiServer() error {
+func (r *rke2Shipper) shipKubeAPIServer() error {
 	parser := input.NewDateZoneParser(r.timezone, r.year, input.DatetimeRegexK8s, input.LayoutK8s)
 	files, err := filepath.Glob("rke2/podlogs/kube-system-kube-apiserver-*")
 	if err != nil {

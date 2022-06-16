@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/dbason/opni-supportagent/pkg/errors"
 	"github.com/dbason/opni-supportagent/pkg/util"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/opensearch-project/opensearch-go/opensearchtransport"
@@ -77,26 +77,9 @@ func deleteLogs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if resp.IsError() {
-		resp.Body.Close()
-		return fmt.Errorf("failed to queue delete: %s", resp.String())
-	}
-
-	resp.Body.Close()
-	query, _ = sjson.Set("", `query.term.case\.keyword`, caseNumber)
-	resp, err = osClient.DeleteByQuery(
-		[]string{
-			"pending-cases",
-		},
-		strings.NewReader(query),
-		osClient.DeleteByQuery.WithWaitForCompletion(false),
-	)
-	if err != nil {
-		return err
-	}
 	defer resp.Body.Close()
 	if resp.IsError() {
-		return fmt.Errorf("failed to queue delete: %s", resp.String())
+		return errors.ErrQueueDeleteWithResp(resp.String())
 	}
 
 	util.Log.Infof("logs for %s scheduled to be deleted in the background", caseNumber)
