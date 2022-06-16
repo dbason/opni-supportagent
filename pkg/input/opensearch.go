@@ -45,6 +45,7 @@ func NewOpensearchInput(
 	transport.TLSHandshakeTimeout = 5 * time.Second
 
 	retryBackoff := backoff.NewExponentialBackOff()
+	retryBackoff.InitialInterval = 2 * time.Second
 
 	osCfg := opensearch.Config{
 		Addresses: []string{
@@ -59,6 +60,7 @@ func NewOpensearchInput(
 			if i == 1 {
 				retryBackoff.Reset()
 			}
+			util.Log.Warnf("retrying operation, retry %d", i)
 			return retryBackoff.NextBackOff()
 		},
 		Logger: &opensearchtransport.ColorLogger{Output: os.Stdout},
@@ -133,7 +135,7 @@ func (i *OpensearchInput) Publish(parser DateParser, logType LogType) (time.Time
 									if err != nil {
 										util.Log.Errorf("%s", err)
 									} else {
-										util.Log.Errorf("%s: %s", res.Error.Type, res.Error.Reason)
+										util.Log.Errorf("%d - %s: %s", res.Status, res.Error.Type, res.Error.Reason)
 									}
 								},
 							},
