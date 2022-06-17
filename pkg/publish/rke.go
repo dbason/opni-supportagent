@@ -45,7 +45,16 @@ func ShipRKEControlPlane(
 	} {
 		if !reflect.ValueOf(component).IsNil() && component != nil {
 			util.Log.Infof("publishing %s logs", component.ComponentName())
-			_, _, err := component.Publish(&input.DefaultParser{}, input.LogTypeControlplane)
+			var err error
+			if component.ComponentName() == "etcd" {
+				_, _, err = component.Publish(&input.DefaultParser{
+					TimestampRegex: input.EtcdRegex,
+				}, input.LogTypeControlplane)
+			} else {
+				_, _, err = component.Publish(&input.DefaultParser{
+					TimestampRegex: input.KlogRegex,
+				}, input.LogTypeControlplane)
+			}
 			if err != nil {
 				return err
 			}

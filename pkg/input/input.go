@@ -4,6 +4,7 @@ import "time"
 
 const (
 	KlogRegex = `^[I,E,F]\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
+	EtcdRegex = `^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}`
 )
 
 type LogType string

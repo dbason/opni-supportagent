@@ -13,6 +13,7 @@ const (
 )
 
 type DefaultParser struct {
+	TimestampRegex string
 }
 
 func (p *DefaultParser) ParseTimestamp(log string) (time.Time, string, bool) {
@@ -25,7 +26,7 @@ func (p *DefaultParser) ParseTimestamp(log string) (time.Time, string, bool) {
 
 	cleaned := strings.TrimSpace(re.ReplaceAllString(log, ""))
 
-	re = regexp.MustCompile(KlogRegex)
+	re = regexp.MustCompile(p.TimestampRegex)
 	datestring = re.FindString(cleaned)
 	valid := len(datestring) > 0
 
