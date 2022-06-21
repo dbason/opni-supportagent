@@ -3,6 +3,7 @@ package publish
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"reflect"
 
 	"github.com/dbason/opni-supportagent/pkg/input"
@@ -60,6 +61,30 @@ func ShipRKEControlPlane(
 			}
 		}
 	}
+
+	parser := &input.MultipleParser{
+		Dateformats: []input.Dateformat{
+			{
+				DateRegex: input.RancherRegex,
+				Layout:    input.RancherLayout,
+			},
+			{
+				DateRegex: input.KlogRegex,
+				Layout:    input.KlogLayout,
+			},
+		},
+		StripLeadingDate: true,
+	}
+
+	rancherInput := shipper.createRancherInput()
+	if !reflect.ValueOf(rancherInput).IsNil() && rancherInput != nil {
+		util.Log.Info("publishing rancher server logs")
+		_, _, err := rancherInput.Publish(parser, input.LogTypeRancher)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -169,4 +194,23 @@ func (s rkeShipper) createKubeProxyInput() *input.OpensearchInput {
 	}
 	util.Log.Info("kube-proxy log is missing, skipping")
 	return nil
+}
+
+func (s rkeShipper) createRancherInput() *input.OpensearchInput {
+	files, err := filepath.Glob("rancher/containerlogs/server-*")
+	if err != nil {
+		util.Log.Errorf("unable to list rancher files: %s", err)
+		return nil
+	}
+	os, err := input.NewOpensearchInput(s.ctx, s.endpoint, s.username, s.password, input.OpensearchConfig{
+		ClusterID: s.clusterName,
+		NodeName:  s.nodeName,
+		Component: "",
+		Paths:     files,
+	})
+	if err != nil {
+		util.Log.Errorf("unable to create rancher shipper: %s", err)
+		return nil
+	}
+	return os
 }

@@ -3,8 +3,14 @@ package input
 import "time"
 
 const (
-	KlogRegex = `^[I,E,F]\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
-	EtcdRegex = `^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}`
+	KlogRegex     = `\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
+	EtcdRegex     = `^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}`
+	RancherRegex  = `^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}`
+	JournaldRegex = `^[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}`
+
+	RancherLayout  = "2006/01/02 15:05:05"
+	KlogLayout     = "0102 15:04:05.999999 MST 2006"
+	JournaldLayout = "Jan 02 15:04:05 MST 2006"
 )
 
 type LogType string

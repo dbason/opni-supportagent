@@ -9,13 +9,6 @@ import (
 	"github.com/dbason/opni-supportagent/pkg/util"
 )
 
-const (
-	DatetimeRegexJournalD = `^[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}`
-	DatetimeRegexK8s      = `\d{4} \d{2}:\d{2}:\d{2}.\d{6}`
-	LayoutJournalD        = "Jan 02 15:04:05 MST 2006"
-	LayoutK8s             = "0102 15:04:05.999999 MST 2006"
-)
-
 type DateZoneParser struct {
 	datetimeRegex string
 	layout        string
@@ -52,7 +45,7 @@ func (d *DateZoneParser) ParseTimestamp(log string) (time.Time, string, bool) {
 	retLog := log
 	valid := true
 
-	if d.datetimeRegex != DatetimeRegexK8s {
+	if d.datetimeRegex != KlogRegex {
 		cleaned := strings.TrimSpace(re.ReplaceAllString(log, ""))
 		retLog = cleaned
 
