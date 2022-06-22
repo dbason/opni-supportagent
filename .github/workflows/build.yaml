@@ -46,6 +46,7 @@ jobs:
         filename: opni-supportagent_${{ steps.get_version.outputs.VERSION }}.tar.gz
         directory: ./bin/
         path: .
+        exclusions: opni-supportagent_${{ steps.get_version.outputs.VERSION }}.tar.gz
     - uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
