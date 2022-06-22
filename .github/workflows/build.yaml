@@ -1,7 +1,6 @@
 on:
-  push:
-    tags:
-    - 'v*'
+  release:
+    types: [created]
 
 name: Publish Release Artifact
 
@@ -19,37 +18,22 @@ jobs:
     name: Build
     needs: lint
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
     permissions:
       contents: write
     steps:
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
-    - uses: actions/setup-go@v2
+    - uses: wangyoucao577/go-release-action@v1.29
       with:
-        go-version: '^1.17'
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-    - run: CROSS=1 scripts/build
-    - name: Get the version
-      id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-    - uses: thedoctor0/zip-release@main
-      with:
-        type: tar
-        filename: opni-supportagent_${{ steps.get_version.outputs.VERSION }}.tar.gz
-        directory: ./bin/
-        path: .
-        exclusions: opni-supportagent_${{ steps.get_version.outputs.VERSION }}.tar.gz
-    - uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: bin/opni-supportagent_${{ steps.get_version.outputs.VERSION }}.tar.gz
-
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: 1.17
+        pre_command: export GIT_TAG=$(git tag -l --contains HEAD | head -n 1)
+        ldflags: -w -s -X main.VERSION=$GIT_TAG -extldflags -static
   
